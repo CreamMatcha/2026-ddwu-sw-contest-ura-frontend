@@ -1,0 +1,35 @@
+.bar {
+  position: fixed;
+  left: var(--app-edge);
+  right: var(--app-edge);
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  height: var(--tabbar-total);
+  padding-bottom: var(--safe-bottom);
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-tiny);
+  font-weight: 500;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.active,
+.active:hover {
+  color: var(--color-primary);
+  font-weight: 700;
+}

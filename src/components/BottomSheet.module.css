@@ -1,0 +1,60 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(31, 26, 28, 0.32);
+}
+
+.sheet {
+  position: fixed;
+  left: var(--app-edge);
+  right: var(--app-edge);
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px var(--page-x) 20px;
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sheet);
+  max-height: 85dvh;
+  overflow-y: auto;
+  animation: up 0.18s ease-out;
+}
+
+.aboveTab {
+  bottom: var(--tabbar-total);
+}
+
+.bottom {
+  bottom: 0;
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: var(--fs-section);
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.close {
+  margin: -10px -12px 0 0;
+}
+
+@keyframes up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}

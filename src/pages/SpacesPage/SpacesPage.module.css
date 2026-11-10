@@ -1,0 +1,21 @@
+.spinning svg {
+  animation: spin 0.6s linear infinite;
+}
+
+.register {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  margin: 2px 10px 2px 0;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.register:hover {
+  border-color: var(--color-primary);
+}

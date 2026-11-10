@@ -1,0 +1,68 @@
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: var(--h-chip);
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* filter */
+.filter {
+  gap: 6px;
+  padding: 0 12px 0 8px;
+}
+
+.box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--chip-color);
+  background: var(--color-surface);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter.on {
+  border-color: var(--chip-color);
+  background: var(--chip-tint);
+}
+
+.filter.on .box {
+  background: var(--chip-color);
+}
+
+/* select */
+.soft {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+.solid {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* dashed */
+.dashed {
+  gap: 4px;
+  padding: 0 12px;
+  border-style: dashed;
+  border-color: var(--color-border-dashed);
+  color: var(--color-text-muted);
+}
+
+.dashed:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}

@@ -1,0 +1,73 @@
+:root {
+  /* 2-1. 색상 */
+  --color-primary: #9d3549;
+  --color-primary-hover: #7a2738;
+  --color-primary-tint: #f6eef0;
+  --color-error-bg: #fbf3f5;
+  --color-text: #1f1a1c;
+  --color-text-sub: #4a4246;
+  --color-text-muted: #6b6266;
+  --color-text-done: #8a7f83;
+  --color-text-faint: #b5abaf;
+  --color-sunday: #b3261e;
+  --color-border: #e4dadd;
+  --color-border-dashed: #d9cbcf;
+  --color-divider: #efe7e9;
+  --color-divider-light: #f3ecee;
+  --color-surface: #ffffff;
+  --color-surface-soft: #fbf7f8;
+  --color-section-gap: #f7f2f3;
+
+  /* 2-2. 혼잡도 상태 색 */
+  --color-relaxed: #2e7d5b;
+  --color-relaxed-bg: #eaf4ee;
+  --color-normal: #8a5300;
+  --color-normal-bg: #fbf1e3;
+  --color-crowded: #b3261e;
+  --color-crowded-bg: #fbebea;
+  --color-unknown: #6b6266;
+  --color-unknown-bg: #f3ecee;
+
+  /* 2-4. 타이포그래피 */
+  --font: 'Noto Sans KR', system-ui, sans-serif;
+  --fs-display: 28px;
+  --fs-title: 22px;
+  --fs-header: 18px;
+  --fs-section: 17px;
+  --fs-button: 16px;
+  --fs-body: 15px;
+  --fs-sm: 14px;
+  --fs-xs: 13px;
+  --fs-caption: 12px;
+  --fs-tiny: 11px;
+  --ls-display: -0.5px;
+  --ls-title: -0.3px;
+
+  /* 2-5. 모양·크기 */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-sheet: 24px;
+  --radius-pill: 999px;
+  --h-touch: 44px;
+  --h-input: 52px;
+  --h-button: 54px;
+  --h-fab: 52px;
+  --h-chip: 36px;
+  --h-tabbar: 72px;
+  --page-x: 20px;
+
+  /* 2-6. 그림자 */
+  --shadow-fab: 0 6px 18px rgba(157, 53, 73, 0.32);
+  --shadow-sheet: 0 -8px 24px rgba(31, 26, 28, 0.12);
+  --shadow-segment: 0 1px 3px rgba(31, 26, 28, 0.12);
+
+  /* 레이아웃 */
+  --app-max: 430px;
+  /* 데스크톱에서 가운데 정렬된 앱 컬럼의 좌우 바깥 여백 (fixed 요소 위치 계산용) */
+  --app-edge: max(0px, calc((100vw - var(--app-max)) / 2));
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tabbar-total: calc(var(--h-tabbar) + var(--safe-bottom));
+}

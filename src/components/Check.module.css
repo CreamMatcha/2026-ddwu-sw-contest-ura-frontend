@@ -1,0 +1,35 @@
+.hit {
+  --check-color: var(--color-primary);
+  flex: none;
+  width: var(--h-touch);
+  height: var(--h-touch);
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mark {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--check-color);
+  background: var(--color-surface);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.box {
+  border-radius: 6px;
+}
+
+.on {
+  background: var(--check-color);
+}

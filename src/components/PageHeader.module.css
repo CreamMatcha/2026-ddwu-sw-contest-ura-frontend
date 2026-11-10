@@ -1,0 +1,58 @@
+.titleHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px var(--page-x) 10px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 44px;
+}
+
+.eyebrow {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: var(--ls-title);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: -10px;
+}
+
+.backHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px 8px;
+}
+
+.backText {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  font-size: var(--fs-header);
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.backActions {
+  display: flex;
+  align-items: center;
+}

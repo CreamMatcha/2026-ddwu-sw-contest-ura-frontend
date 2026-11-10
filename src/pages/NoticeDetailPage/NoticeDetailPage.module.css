@@ -1,0 +1,140 @@
+.page {
+  padding-bottom: calc(110px + var(--safe-bottom));
+}
+
+.missing {
+  margin: 40px var(--page-x);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.body {
+  padding: 8px var(--page-x) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: var(--ls-title);
+}
+
+.saved {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.summary {
+  padding: 16px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summaryLabel {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.summaryText {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-text-sub);
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-divider);
+}
+
+.dateIcon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dateInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.dateMain {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.dateLabel {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.point {
+  display: flex;
+  gap: 10px;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+
+.num {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

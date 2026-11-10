@@ -1,0 +1,179 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 20px var(--page-x) 8px;
+}
+
+.month {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: var(--ls-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  padding: 4px var(--page-x) 12px;
+  overflow-x: auto;
+}
+
+.calendar {
+  padding: 0 12px;
+}
+
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  padding-bottom: 4px;
+  text-align: center;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.weekdays .sunday {
+  color: var(--color-sunday);
+}
+
+.grid {
+  row-gap: 2px;
+}
+
+.cell {
+  height: 50px;
+  padding: 2px 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.date {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell:hover .date {
+  background: var(--color-primary-tint);
+}
+
+.date.sunday {
+  color: var(--color-sunday);
+}
+
+.date.other {
+  color: var(--color-text-faint);
+}
+
+.date.today {
+  border-color: var(--color-primary);
+  font-weight: 700;
+}
+
+.cell .date.selected {
+  border-color: transparent;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.dots {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+}
+
+.day {
+  margin-top: 8px;
+  border-top: 8px solid var(--color-section-gap);
+  padding: 16px var(--page-x) 0;
+}
+
+.dayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dayTitle {
+  font-size: var(--fs-section);
+  font-weight: 700;
+}
+
+.remain {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.empty {
+  margin: 24px 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+}
+
+.check {
+  margin: -10px -8px -10px -10px;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.done {
+  color: var(--color-text-done);
+  text-decoration: line-through;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}

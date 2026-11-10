@@ -1,0 +1,170 @@
+.query {
+  margin: 2px var(--page-x) 0;
+  padding: 12px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.day {
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.dayOn {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeLabel {
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--color-text-sub);
+}
+
+.time {
+  flex: 1;
+  min-width: 0;
+  height: var(--h-touch);
+  padding: 0 6px;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--fs-body);
+}
+
+.time[aria-invalid='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-error-bg);
+}
+
+.dash {
+  color: var(--color-text-muted);
+}
+
+.search {
+  flex: none;
+  height: var(--h-touch);
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.search:hover {
+  background: var(--color-primary-hover);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--color-primary);
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  padding: 12px var(--page-x) 4px;
+  overflow-x: auto;
+}
+
+.results {
+  padding: 8px var(--page-x) 0;
+}
+
+.count {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.count span {
+  color: var(--color-primary);
+}
+
+.condition {
+  margin: 2px 0 8px;
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.empty {
+  margin: 8px 0 12px;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-divider);
+}
+
+.icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roomInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.roomName {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.next {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.updated {
+  flex: none;
+  font-size: var(--fs-tiny);
+  color: var(--color-text-muted);
+}

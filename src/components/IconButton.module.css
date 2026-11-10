@@ -1,0 +1,21 @@
+.button {
+  flex: none;
+  width: var(--h-touch);
+  height: var(--h-touch);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.button:disabled {
+  opacity: 0.4;
+}

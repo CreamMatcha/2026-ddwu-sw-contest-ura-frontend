@@ -1,0 +1,48 @@
+.dday {
+  flex: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--color-divider);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.urgent {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.status {
+  flex: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tagSm {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--fs-tiny);
+  font-weight: 700;
+  white-space: nowrap;
+}

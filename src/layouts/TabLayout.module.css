@@ -1,0 +1,5 @@
+.content {
+  min-height: 100dvh;
+  /* 탭바 + FAB가 마지막 콘텐츠를 가리지 않게 */
+  padding-bottom: calc(var(--tabbar-total) + 92px);
+}

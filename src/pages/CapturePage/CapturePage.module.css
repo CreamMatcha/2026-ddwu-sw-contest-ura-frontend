@@ -1,0 +1,119 @@
+.page {
+  padding-bottom: calc(110px + var(--safe-bottom));
+}
+
+.image {
+  margin: 6px var(--page-x) 14px;
+  height: 76px;
+  padding: 0 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px dashed var(--color-border-dashed);
+  background: var(--color-surface-soft);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.thumb {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-divider);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageText {
+  flex: 1;
+  min-width: 0;
+}
+
+.imageTitle {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.imageSub {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.retake {
+  flex: none;
+  height: var(--h-chip);
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--fs-xs);
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--page-x);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  padding: 12px 14px 14px;
+  border-radius: var(--radius-xl);
+  border: 1.5px solid var(--color-divider);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: opacity 0.15s;
+}
+
+.excluded {
+  opacity: 0.55;
+}
+
+.cardError {
+  border-color: var(--color-primary);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.check {
+  margin: -10px -8px -10px -12px;
+}
+
+.course {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--color-text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footer {
+  position: fixed;
+  left: var(--app-edge);
+  right: var(--app-edge);
+  bottom: 0;
+  z-index: 20;
+  padding: 12px var(--page-x) calc(24px + var(--safe-bottom));
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}

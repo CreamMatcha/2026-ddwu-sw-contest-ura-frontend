@@ -1,0 +1,135 @@
+.page {
+  /* 하단 패널 높이만큼 여백 */
+  padding-bottom: calc(330px + var(--safe-bottom));
+}
+
+.empty {
+  margin: 40px 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0 var(--page-x);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-divider-light);
+}
+
+.editing .name {
+  color: var(--color-primary);
+}
+
+.swatch {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.last {
+  margin-right: -12px;
+}
+
+.panel {
+  position: fixed;
+  left: var(--app-edge);
+  right: var(--app-edge);
+  bottom: 0;
+  z-index: 20;
+  padding: 20px var(--page-x) calc(28px + var(--safe-bottom));
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--color-surface-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.panelTitle {
+  font-size: var(--fs-button);
+  font-weight: 700;
+}
+
+.cancel {
+  margin: -10px -8px -10px 0;
+  height: var(--h-touch);
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.colors {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.colorLabel {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--color-text-sub);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.colorBtn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+.colorOn {
+  border-color: var(--color-text);
+}
+
+.submit {
+  margin-top: 4px;
+}
