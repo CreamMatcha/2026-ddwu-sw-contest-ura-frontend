@@ -117,3 +117,34 @@
   border-top: 1px solid var(--color-divider);
   background: var(--color-surface);
 }
+
+.memoField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memoLabel {
+  font-size: var(--fs-tiny);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.memo {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--color-text);
+  resize: vertical;
+  field-sizing: content;
+}
+
+.memo::placeholder {
+  color: var(--color-text-faint);
+}

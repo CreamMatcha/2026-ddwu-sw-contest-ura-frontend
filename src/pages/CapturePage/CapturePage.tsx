@@ -23,7 +23,8 @@ interface Draft {
   userLectureId: number | null;
   title: string;
   eventType: EventType;
-  memo: string | null;
+  /** AI가 읽은 보충 정보 (제출 방법 등). 없으면 빈 문자열 */
+  memo: string;
   /** datetime-local 값 (YYYY-MM-DDTHH:mm) */
   dueAt: string;
   /** 마감일을 못 읽은 카드 (필수 입력) */
@@ -42,7 +43,7 @@ function toDrafts(res: CaptureResponse, courseIdOf: (id: number | null) => strin
     userLectureId: c.userLectureId,
     title: c.title ?? '',
     eventType: c.eventType ?? 'assignment',
-    memo: c.memo,
+    memo: c.memo ?? '',
     // 시각이 없으면 LMS 기본 마감 시각인 23:59로 채운다
     dueAt: c.eventDate ? `${c.eventDate}T${c.eventTime ? c.eventTime.slice(0, 5) : '23:59'}` : '',
     review: !c.eventDate,
@@ -114,7 +115,7 @@ export function CapturePage() {
           eventType: d.eventType,
           eventDate: date,
           eventTime: time ? `${time}:00` : null,
-          memo: d.memo,
+          memo: d.memo.trim() || null,
         };
       }),
     );
@@ -234,6 +235,21 @@ export function CapturePage() {
                       : undefined
                 }
               />
+              <div className={s.memoField}>
+                <label htmlFor={`${d.tempId}-memo`} className={s.memoLabel}>
+                  메모
+                </label>
+                <textarea
+                  id={`${d.tempId}-memo`}
+                  className={s.memo}
+                  rows={2}
+                  maxLength={1000}
+                  value={d.memo}
+                  disabled={!d.included}
+                  placeholder="AI가 읽은 메모가 없어요. 필요하면 직접 적어 주세요"
+                  onChange={(e) => update(d.tempId, { memo: e.target.value })}
+                />
+              </div>
             </li>
           );
         })}

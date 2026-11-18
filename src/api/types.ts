@@ -112,6 +112,16 @@ export interface EventCreateRequest {
   memo?: string | null;
 }
 
+/** 일정 수정 (전체 교체: 보내지 않은 선택 값은 null로 저장됨) */
+export interface EventUpdateRequest {
+  userLectureId: number | null;
+  title: string;
+  eventType: EventType;
+  eventDate: string;
+  eventTime: string | null;
+  memo: string | null;
+}
+
 export interface CaptureCandidateDto {
   courseName: string | null;
   userLectureId: number | null;

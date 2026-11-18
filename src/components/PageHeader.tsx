@@ -18,6 +18,8 @@ type PageHeaderProps =
       title: string;
       subtitle?: string;
       backTo: string;
+      /** 뒤로 갈 때 함께 넘길 라우터 state (예: 캘린더 선택 날짜) */
+      backState?: unknown;
       actions?: ReactNode;
     };
 
@@ -41,7 +43,7 @@ export function PageHeader(props: PageHeaderProps) {
 
   return (
     <header className={s.backHeader}>
-      <IconButton icon="chevron-left" aria-label="뒤로" onClick={() => navigate(props.backTo)} />
+      <IconButton icon="chevron-left" aria-label="뒤로" onClick={() => navigate(props.backTo, { state: props.backState })} />
       <div className={s.backText}>
         <h1 className={s.header}>{props.title}</h1>
         {props.subtitle && <p className={s.subtitle}>{props.subtitle}</p>}

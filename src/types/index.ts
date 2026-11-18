@@ -30,6 +30,14 @@ export interface Assignment {
   type: EventType;
 }
 
+/** 일정 상세 (메모·원본 출처 포함) */
+export interface AssignmentDetail extends Assignment {
+  /** AI가 캡처에서 읽은 메모 등 */
+  memo?: string;
+  sourceNoticeId?: number;
+  createdAt: string;
+}
+
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4; // 월~금
 
 export interface ClassBlock {
