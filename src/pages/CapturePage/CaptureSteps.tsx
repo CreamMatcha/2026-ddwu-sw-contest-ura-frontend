@@ -64,10 +64,13 @@ export function UploadStep({ title, subtitle, backTo, onPick, children }: Upload
 export function AnalyzingStep({ previewUrl, message }: { previewUrl: string | null; message: string }) {
   return (
     <div className={s.analyzing} role="status" aria-live="polite">
-      {previewUrl && <img src={previewUrl} alt="" className={s.preview} />}
-      <span className={s.spinner} aria-hidden />
-      <p className={s.analyzingTitle}>{message}</p>
-      <p className={s.dropSub}>잠시만 기다려 주세요</p>
+      {/* 올린 이미지를 화면 가득 반투명하게 깔고 그 위에 로딩 표시 */}
+      {previewUrl && <img src={previewUrl} alt="" className={s.backdrop} />}
+      <div className={s.analyzingContent}>
+        <span className={s.spinner} aria-hidden />
+        <p className={s.analyzingTitle}>{message}</p>
+        <p className={s.analyzingSub}>잠시만 기다려 주세요</p>
+      </div>
     </div>
   );
 }
