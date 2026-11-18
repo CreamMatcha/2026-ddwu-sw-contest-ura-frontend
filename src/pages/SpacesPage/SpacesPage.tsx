@@ -5,7 +5,8 @@ import { IconButton } from '../../components/IconButton';
 import { PageHeader } from '../../components/PageHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { useToast } from '../../components/Toast';
-import { useAppStore } from '../../store/AppStore';
+import { errorMessage } from '../../api/client';
+import { usePlaces } from '../../api/queries';
 import s from './SpacesPage.module.css';
 
 type Tab = 'lounge' | 'rooms';
@@ -14,7 +15,7 @@ export function SpacesPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const toast = useToast();
-  const { refreshPlaces } = useAppStore();
+  const places = usePlaces();
   const [refreshing, setRefreshing] = useState(false);
   const tab: Tab = pathname.endsWith('/rooms') ? 'rooms' : 'lounge';
 
@@ -22,11 +23,10 @@ export function SpacesPage() {
   const refresh = () => {
     if (refreshing) return;
     setRefreshing(true);
-    setTimeout(() => {
-      refreshPlaces();
+    places.refetch().then((r) => {
       setRefreshing(false);
-      toast('최신 정보로 바꿨어요');
-    }, 600);
+      toast(r.error ? errorMessage(r.error, '새로고침하지 못했어요') : '최신 정보로 바꿨어요');
+    });
   };
 
   return (

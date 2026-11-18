@@ -5,7 +5,8 @@ import { CourseDot } from '../../components/CourseDot';
 import { Fab } from '../../components/Fab';
 import { Icon } from '../../components/Icon';
 import { PageHeader } from '../../components/PageHeader';
-import { useAppStore } from '../../store/AppStore';
+import { useNotices, useSchedule } from '../../api/queries';
+import { QueryState } from '../../components/QueryState';
 import { UNCATEGORIZED_COLOR } from '../../utils/color';
 import { formatMentionedDate, relativeDay } from '../../utils/date';
 import { useNow } from '../../utils/useNow';
@@ -18,7 +19,8 @@ const NONE = 'none';
 export function NoticesPage() {
   const navigate = useNavigate();
   const now = useNow(60_000);
-  const { notices, courseById } = useAppStore();
+  const { courseById } = useSchedule();
+  const { notices, isLoading, error, refetch } = useNotices();
   const [filter, setFilter] = useState<string>(ALL);
 
   // 필터 칩: 전체, 시험, 공지가 있는 과목들, 미분류
@@ -51,7 +53,9 @@ export function NoticesPage() {
         ))}
       </div>
 
-      {list.length === 0 ? (
+      {isLoading || error ? (
+        <QueryState loading={isLoading} error={error} onRetry={refetch} />
+      ) : list.length === 0 ? (
         <p className={s.empty}>
           {notices.length === 0 ? '아직 저장한 공지가 없어요. 공지를 캡처해 보세요' : '이 분류에 해당하는 공지가 없어요'}
         </p>
@@ -65,7 +69,7 @@ export function NoticesPage() {
                 <Link to={`/notices/${n.id}`} className={s.card}>
                   <span className={s.meta}>
                     <CourseDot color={c?.color ?? UNCATEGORIZED_COLOR} size={8} />
-                    {c?.name ?? '미분류'}
+                    {c?.name ?? n.lectureName ?? '미분류'}
                     <span className={s.saved}>{relativeDay(n.savedAt, now)}</span>
                   </span>
                   <span className={s.title}>{n.title}</span>

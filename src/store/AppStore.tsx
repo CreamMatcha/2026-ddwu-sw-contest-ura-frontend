@@ -1,242 +1,95 @@
-import dayjs from 'dayjs';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type ReactNode,
 } from 'react';
-import {
-  createMockNotices,
-  createMockPlaces,
-  mockAssignments,
-  mockClasses,
-  mockCourses,
-} from '../mocks';
-import type {
-  Assignment,
-  ClassBlock,
-  Course,
-  CourseData,
-  Notice,
-  Place,
-  VoteLevel,
-} from '../types';
-import { nextPaletteColor } from '../utils/color';
+import { loadAuth, saveAuth, setUnauthorizedHandler, type StoredAuth } from '../api/client';
+import { authApi } from '../api/endpoints';
 
 /**
- * Phase 2~3용 클라이언트 상태 저장소 (목 데이터 + localStorage).
- * Phase 4에서 api/ + TanStack Query로 교체한다.
+ * 클라이언트 전용 상태: 로그인 세션 + 캘린더에서 숨긴 과목.
+ * 서버 데이터(과목·일정·공지·라운지)는 api/queries.ts의 TanStack Query 훅에서 다룬다.
  */
 
-interface PersistedState {
-  auth: { email: string } | null;
-  courses: CourseData[];
-  assignments: Assignment[];
-  classes: ClassBlock[];
-  notices: Notice[];
-  hiddenCourseIds: string[];
-}
+const HIDDEN_KEY = 'ura.hiddenCourses.v1';
 
-interface State extends PersistedState {
-  places: Place[];
-}
-
-const STORAGE_KEY = 'ura.state.v1';
-
-function initialState(): State {
-  const base: PersistedState = {
-    auth: null,
-    courses: mockCourses,
-    assignments: mockAssignments,
-    classes: mockClasses,
-    notices: createMockNotices(),
-    hiddenCourseIds: [],
-  };
+function loadHidden(): string[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) Object.assign(base, JSON.parse(raw) as Partial<PersistedState>);
+    return JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? '[]') as string[];
   } catch {
-    /* 저장된 값이 깨졌으면 목 데이터로 시작 */
+    return [];
   }
-  return { ...base, places: createMockPlaces() };
-}
-
-let idSeq = 0;
-const newId = (prefix: string) => `${prefix}_${Date.now().toString(36)}${(idSeq++).toString(36)}`;
-
-export interface NewAssignmentInput {
-  courseId?: string;
-  courseName: string;
-  title: string;
-  dueAt: string;
 }
 
 function useAppStoreValue() {
-  const [state, setState] = useState<State>(initialState);
+  const qc = useQueryClient();
+  const [auth, setAuth] = useState<StoredAuth | null>(loadAuth);
+  const [hiddenCourseIds, setHidden] = useState<string[]>(loadHidden);
 
   useEffect(() => {
-    const { places: _places, ...persisted } = state;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
-  }, [state]);
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify(hiddenCourseIds));
+  }, [hiddenCourseIds]);
 
-  const courses: Course[] = useMemo(
-    () =>
-      state.courses.map((c) => ({
-        ...c,
-        remainingCount: state.assignments.filter((a) => a.courseId === c.id && !a.done).length,
-      })),
-    [state.courses, state.assignments],
+  const clearSession = useCallback(() => {
+    saveAuth(null);
+    setAuth(null);
+    qc.clear();
+  }, [qc]);
+
+  // 토큰이 만료돼 401을 받으면 로그인 화면으로
+  useEffect(() => {
+    setUnauthorizedHandler(clearSession);
+    return () => setUnauthorizedHandler(null);
+  }, [clearSession]);
+
+  // 만료 시각이 되면 자동 로그아웃
+  useEffect(() => {
+    if (!auth) return;
+    const t = window.setTimeout(clearSession, Math.max(0, auth.expiresAt - Date.now()));
+    return () => window.clearTimeout(t);
+  }, [auth, clearSession]);
+
+  const login = useCallback(
+    async (loginId: string, password: string) => {
+      const res = await authApi.login(loginId, password);
+      const next: StoredAuth = {
+        accessToken: res.accessToken,
+        expiresAt: Date.now() + res.expiresIn * 1000,
+        user: res.user,
+      };
+      qc.clear();
+      saveAuth(next);
+      setAuth(next);
+    },
+    [qc],
   );
 
-  const courseById = useMemo(() => new Map(courses.map((c) => [c.id, c])), [courses]);
-
-  // ---------- 인증 ----------
-  const login = useCallback((email: string) => setState((s) => ({ ...s, auth: { email } })), []);
-  const logout = useCallback(() => setState((s) => ({ ...s, auth: null })), []);
-
-  // ---------- 과제 ----------
-  const toggleAssignment = useCallback(
-    (id: string) =>
-      setState((s) => ({
-        ...s,
-        assignments: s.assignments.map((a) => (a.id === id ? { ...a, done: !a.done } : a)),
-      })),
-    [],
+  const signup = useCallback(
+    async (nickname: string, loginId: string, password: string) => {
+      await authApi.signup(nickname, loginId, password);
+      await login(loginId, password);
+    },
+    [login],
   );
 
-  /** 캡처 결과 저장. courseId가 없으면 같은 이름 과목을 찾고, 없으면 새 과목을 만든다 */
-  const addAssignments = useCallback((inputs: NewAssignmentInput[]) => {
-    setState((s) => {
-      const nextCourses = [...s.courses];
-      const added: Assignment[] = inputs.map((input) => {
-        let courseId = input.courseId;
-        if (!courseId) {
-          const name = input.courseName.trim();
-          let course = nextCourses.find((c) => c.name === name);
-          if (!course) {
-            course = { id: newId('c'), name, color: nextPaletteColor(nextCourses.map((c) => c.color)) };
-            nextCourses.push(course);
-          }
-          courseId = course.id;
-        }
-        return { id: newId('a'), courseId, title: input.title.trim(), dueAt: input.dueAt, done: false };
-      });
-      return { ...s, courses: nextCourses, assignments: [...s.assignments, ...added] };
-    });
-  }, []);
-
-  // ---------- 과목 ----------
-  const addCourse = useCallback((name: string, color: string) => {
-    setState((s) => ({ ...s, courses: [...s.courses, { id: newId('c'), name: name.trim(), color }] }));
-  }, []);
-
-  const updateCourse = useCallback((id: string, patch: Partial<Omit<CourseData, 'id'>>) => {
-    setState((s) => ({
-      ...s,
-      courses: s.courses.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-    }));
-  }, []);
-
-  /** 과목 삭제 시 해당 과목의 과제·수업도 지우고, 공지는 미분류로 돌린다 */
-  const deleteCourse = useCallback((id: string) => {
-    setState((s) => ({
-      ...s,
-      courses: s.courses.filter((c) => c.id !== id),
-      assignments: s.assignments.filter((a) => a.courseId !== id),
-      classes: s.classes.filter((k) => k.courseId !== id),
-      notices: s.notices.map((n) => (n.courseId === id ? { ...n, courseId: undefined } : n)),
-      hiddenCourseIds: s.hiddenCourseIds.filter((h) => h !== id),
-    }));
-  }, []);
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      /* 서버는 토큰을 무효화하지 않으므로 실패해도 클라이언트에서 지우면 된다 */
+    }
+    clearSession();
+  }, [clearSession]);
 
   const toggleCourseHidden = useCallback((id: string) => {
-    setState((s) => ({
-      ...s,
-      hiddenCourseIds: s.hiddenCourseIds.includes(id)
-        ? s.hiddenCourseIds.filter((h) => h !== id)
-        : [...s.hiddenCourseIds, id],
-    }));
+    setHidden((h) => (h.includes(id) ? h.filter((x) => x !== id) : [...h, id]));
   }, []);
 
-  // ---------- 시간표 ----------
-  const addClass = useCallback((block: Omit<ClassBlock, 'id'>) => {
-    setState((s) => ({ ...s, classes: [...s.classes, { ...block, id: newId('k') }] }));
-  }, []);
-
-  // ---------- 라운지 ----------
-  const vote = useCallback((placeId: string, level: VoteLevel) => {
-    setState((s) => {
-      const now = dayjs();
-      return {
-        ...s,
-        places: s.places.map((p) => {
-          if (p.id !== placeId) return p;
-          if (p.canVoteAt && now.isBefore(p.canVoteAt)) return p;
-          return {
-            ...p,
-            myVote: level,
-            canVoteAt: now.add(10, 'minute').toISOString(),
-            voteCount: p.voteCount + 1,
-            lastVotedAt: now.toISOString(),
-            level: p.level === 'UNKNOWN' ? level : p.level,
-          };
-        }),
-      };
-    });
-  }, []);
-
-  /** 목 새로고침: 30분이 지난 장소는 정보 없음 처리 */
-  const refreshPlaces = useCallback(() => {
-    setState((s) => {
-      const limit = dayjs().subtract(30, 'minute');
-      return {
-        ...s,
-        places: s.places.map((p) =>
-          p.lastVotedAt && dayjs(p.lastVotedAt).isBefore(limit)
-            ? { ...p, level: 'UNKNOWN', voteCount: 0, lastVotedAt: undefined }
-            : p,
-        ),
-      };
-    });
-  }, []);
-
-  // ---------- 공지 ----------
-  const addNotice = useCallback((notice: Omit<Notice, 'id'>): string => {
-    const id = newId('n');
-    setState((s) => ({ ...s, notices: [{ ...notice, id }, ...s.notices] }));
-    return id;
-  }, []);
-
-  const deleteNotice = useCallback((id: string) => {
-    setState((s) => ({ ...s, notices: s.notices.filter((n) => n.id !== id) }));
-  }, []);
-
-  return {
-    auth: state.auth,
-    courses,
-    courseById,
-    assignments: state.assignments,
-    classes: state.classes,
-    places: state.places,
-    notices: state.notices,
-    hiddenCourseIds: state.hiddenCourseIds,
-    login,
-    logout,
-    toggleAssignment,
-    addAssignments,
-    addCourse,
-    updateCourse,
-    deleteCourse,
-    toggleCourseHidden,
-    addClass,
-    vote,
-    refreshPlaces,
-    addNotice,
-    deleteNotice,
-  };
+  return { auth, login, signup, logout, hiddenCourseIds, toggleCourseHidden };
 }
 
 type AppStore = ReturnType<typeof useAppStoreValue>;

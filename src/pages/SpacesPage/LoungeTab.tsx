@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { Badge, LEVEL_LABEL, LEVEL_VAR } from '../../components/Badge';
-import { useAppStore } from '../../store/AppStore';
+import { errorMessage } from '../../api/client';
+import { usePlaces, useVote } from '../../api/queries';
+import { QueryState } from '../../components/QueryState';
+import { useToast } from '../../components/Toast';
 import type { CongestionLevel, VoteLevel } from '../../types';
 import { minutesAgo } from '../../utils/date';
 import { useNow } from '../../utils/useNow';
@@ -9,19 +12,34 @@ import s from './LoungeTab.module.css';
 
 const BAR_COUNT: Record<CongestionLevel, number> = { RELAXED: 1, NORMAL: 2, CROWDED: 3, UNKNOWN: 0 };
 const VOTE_OPTIONS: VoteLevel[] = ['RELAXED', 'NORMAL', 'CROWDED'];
+const VOTE_COOLDOWN_MIN = 10;
 
 export function LoungeTab() {
-  const { places, vote } = useAppStore();
+  const toast = useToast();
+  const { data: places = [], isPending, error, refetch } = usePlaces();
+  const voteMutation = useVote();
   const now = useNow(15_000);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<number | null>(null);
+
+  const vote = (placeId: number, level: VoteLevel) =>
+    voteMutation.mutate(
+      { placeId, level },
+      {
+        onSuccess: () => toast('투표했어요. 고마워요!'),
+        onError: (err) => toast(errorMessage(err, '투표하지 못했어요')),
+      },
+    );
 
   return (
     <>
       <p className={s.note}>최근 30분 동안의 투표로 계산해요 · 당겨서 새로고침</p>
+      <QueryState loading={isPending} error={error} onRetry={refetch} />
+      {!isPending && !error && places.length === 0 && <p className={s.note}>등록된 장소가 없어요</p>}
       <ul className={s.list}>
         {places.map((p) => {
           const isOpen = openId === p.id;
-          const locked = !!p.canVoteAt && now.isBefore(dayjs(p.canVoteAt));
+          // 서버는 사용자별 최신 1표만 세므로 다시 투표해도 되지만, 화면에서는 10분 간격으로 제한한다
+          const locked = !!p.myVotedAt && now.isBefore(dayjs(p.myVotedAt).add(VOTE_COOLDOWN_MIN, 'minute'));
           const myVote = locked ? p.myVote : undefined;
           const bars = BAR_COUNT[p.level];
           const barColor = LEVEL_VAR[p.level].fg;
@@ -63,7 +81,7 @@ export function LoungeTab() {
                           key={lv}
                           type="button"
                           aria-pressed={on}
-                          disabled={!!myVote && !on}
+                          disabled={(!!myVote && !on) || voteMutation.isPending}
                           className={[s.option, on && s.optionOn].filter(Boolean).join(' ')}
                           style={{ color: on ? '#fff' : c.fg, background: on ? c.fg : undefined, borderColor: on ? c.fg : undefined }}
                           onClick={() => !myVote && vote(p.id, lv)}
