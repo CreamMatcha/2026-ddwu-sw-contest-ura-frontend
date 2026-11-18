@@ -244,6 +244,28 @@ export function useAssignment(id: number) {
   return { assignment, isLoading: q.isPending && q.fetchStatus !== 'idle', error: q.error, refetch: q.refetch };
 }
 
+/** 메모만 바꾼다. 수정 API가 전체 교체라 나머지 값은 서버에 있는 그대로 다시 보낸다 */
+export function useUpdateAssignmentMemo() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, memo }: { id: number; memo: string }) => {
+      const current = await qc.fetchQuery({ queryKey: qk.event(id), queryFn: () => eventApi.detail(id) });
+      return eventApi.update(id, {
+        userLectureId: current.userLectureId,
+        title: current.title,
+        eventType: current.eventType,
+        eventDate: current.eventDate,
+        eventTime: current.eventTime,
+        memo: memo.trim() || null,
+      });
+    },
+    onSuccess: (updated) => {
+      qc.setQueryData(qk.event(updated.eventId), updated);
+      qc.invalidateQueries({ queryKey: qk.events, exact: true });
+    },
+  });
+}
+
 export function useDeleteAssignment() {
   const qc = useQueryClient();
   return useMutation({

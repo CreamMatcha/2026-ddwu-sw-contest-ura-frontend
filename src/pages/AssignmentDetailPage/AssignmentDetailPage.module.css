@@ -149,3 +149,55 @@
   background: linear-gradient(to top, var(--color-surface) 70%, transparent);
 }
 
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.memoActions {
+  display: flex;
+  gap: 4px;
+}
+
+.textBtn,
+.textBtnMuted {
+  min-height: 44px;
+  margin: -10px -8px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.textBtnMuted {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.textBtn:disabled,
+.textBtnMuted:disabled {
+  opacity: 0.5;
+}
+
+.memoInput {
+  width: 100%;
+  min-height: 96px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-primary);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.memoInput::placeholder {
+  color: var(--color-text-faint);
+}

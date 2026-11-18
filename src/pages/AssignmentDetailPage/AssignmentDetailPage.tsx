@@ -2,7 +2,13 @@ import dayjs from 'dayjs';
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError, errorMessage } from '../../api/client';
-import { useAssignment, useDeleteAssignment, useSchedule, useToggleAssignment } from '../../api/queries';
+import {
+  useAssignment,
+  useDeleteAssignment,
+  useSchedule,
+  useToggleAssignment,
+  useUpdateAssignmentMemo,
+} from '../../api/queries';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
@@ -29,7 +35,10 @@ export function AssignmentDetailPage() {
   const { assignment: a, isLoading, error, refetch } = useAssignment(Number(id));
   const toggle = useToggleAssignment();
   const remove = useDeleteAssignment();
+  const updateMemo = useUpdateAssignmentMemo();
   const [confirming, setConfirming] = useState(false);
+  /** 메모 편집 중이면 입력값, 아니면 null */
+  const [memoDraft, setMemoDraft] = useState<string | null>(null);
 
   // 뒤로 가면 캘린더에서 이 일정의 날짜를 보여 준다
   const backState = a ? { focusDate: a.dueAt } : undefined;
@@ -72,6 +81,21 @@ export function AssignmentDetailPage() {
         onError: (err) => toast(errorMessage(err, '완료 상태를 바꾸지 못했어요')),
       },
     );
+
+  const saveMemo = () => {
+    if (memoDraft === null) return;
+    if (memoDraft.trim() === (a.memo ?? '')) return setMemoDraft(null);
+    updateMemo.mutate(
+      { id: a.id, memo: memoDraft },
+      {
+        onSuccess: () => {
+          setMemoDraft(null);
+          toast('메모를 저장했어요');
+        },
+        onError: (err) => toast(errorMessage(err, '메모를 저장하지 못했어요')),
+      },
+    );
+  };
 
   const confirmDelete = () => {
     setConfirming(false);
@@ -138,8 +162,40 @@ export function AssignmentDetailPage() {
         </div>
 
         <section className={s.section}>
-          <h3 className={s.sectionTitle}>메모</h3>
-          {a.memo ? (
+          <div className={s.sectionHead}>
+            <h3 className={s.sectionTitle}>메모</h3>
+            {memoDraft === null ? (
+              <button type="button" className={s.textBtn} onClick={() => setMemoDraft(a.memo ?? '')}>
+                {a.memo ? '수정' : '작성'}
+              </button>
+            ) : (
+              <div className={s.memoActions}>
+                <button
+                  type="button"
+                  className={s.textBtnMuted}
+                  disabled={updateMemo.isPending}
+                  onClick={() => setMemoDraft(null)}
+                >
+                  취소
+                </button>
+                <button type="button" className={s.textBtn} disabled={updateMemo.isPending} onClick={saveMemo}>
+                  {updateMemo.isPending ? '저장 중…' : '저장'}
+                </button>
+              </div>
+            )}
+          </div>
+          {memoDraft !== null ? (
+            <textarea
+              className={s.memoInput}
+              aria-label="메모"
+              rows={4}
+              maxLength={1000}
+              autoFocus
+              value={memoDraft}
+              placeholder="제출 방법, 준비물 등을 적어 두세요"
+              onChange={(e) => setMemoDraft(e.target.value)}
+            />
+          ) : a.memo ? (
             <p className={s.memo}>{a.memo}</p>
           ) : (
             <p className={s.memoEmpty}>메모가 없어요</p>
