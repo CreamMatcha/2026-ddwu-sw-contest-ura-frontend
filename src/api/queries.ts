@@ -1,6 +1,16 @@
 import { useMutation, useQueries, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { Assignment, ClassBlock, Course, DayOfWeek, Notice, NoticeSummary, Place, VoteLevel } from '../types';
+import type {
+  Assignment,
+  AssignmentDetail,
+  ClassBlock,
+  Course,
+  DayOfWeek,
+  Notice,
+  NoticeSummary,
+  Place,
+  VoteLevel,
+} from '../types';
 import { PALETTE } from '../utils/color';
 import { ApiError } from './client';
 import {
@@ -27,6 +37,8 @@ import type {
 export const qk = {
   timetable: (t: Term) => ['timetable', t.academicYear, t.semester] as const,
   events: ['events'] as const,
+  /** ['events'] 아래에 두어 일정이 바뀔 때 함께 무효화된다 */
+  event: (id: number) => ['events', 'detail', id] as const,
   notices: ['notices'] as const,
   notice: (id: number) => ['notices', 'detail', id] as const,
   spaces: ['spaces'] as const,
@@ -63,6 +75,15 @@ function toAssignment(e: EventDto, courseIdOf: (id: number | null) => string | u
     hasTime: !!e.eventTime,
     done: e.completed,
     type: e.eventType,
+  };
+}
+
+function toAssignmentDetail(e: EventDto, courseIdOf: (id: number | null) => string | undefined): AssignmentDetail {
+  return {
+    ...toAssignment(e, courseIdOf),
+    memo: e.memo?.trim() || undefined,
+    sourceNoticeId: e.sourceNoticeId ?? undefined,
+    createdAt: e.createdAt,
   };
 }
 
@@ -197,13 +218,40 @@ export function useToggleAssignment() {
     onMutate: async ({ id, done }) => {
       await qc.cancelQueries({ queryKey: qk.events });
       const prev = qc.getQueryData<{ items: EventDto[] }>(qk.events);
+      const prevDetail = qc.getQueryData<EventDto>(qk.event(id));
       qc.setQueryData<{ items: EventDto[] }>(qk.events, (old) =>
         old && { items: old.items.map((e) => (e.eventId === id ? { ...e, completed: done } : e)) },
       );
-      return { prev };
+      qc.setQueryData<EventDto>(qk.event(id), (old) => old && { ...old, completed: done });
+      return { prev, prevDetail };
     },
-    onError: (_err, _vars, ctx) => ctx?.prev && qc.setQueryData(qk.events, ctx.prev),
+    onError: (_err, { id }, ctx) => {
+      if (ctx?.prev) qc.setQueryData(qk.events, ctx.prev);
+      if (ctx?.prevDetail) qc.setQueryData(qk.event(id), ctx.prevDetail);
+    },
     onSettled: () => qc.invalidateQueries({ queryKey: qk.events }),
+  });
+}
+
+export function useAssignment(id: number) {
+  const { courseIdOf } = useCourseLookup();
+  const q = useQuery({
+    queryKey: qk.event(id),
+    queryFn: () => eventApi.detail(id),
+    enabled: Number.isInteger(id) && id > 0,
+  });
+  const assignment = useMemo(() => (q.data ? toAssignmentDetail(q.data, courseIdOf) : undefined), [q.data, courseIdOf]);
+  return { assignment, isLoading: q.isPending && q.fetchStatus !== 'idle', error: q.error, refetch: q.refetch };
+}
+
+export function useDeleteAssignment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => eventApi.remove(id),
+    onSuccess: (_d, id) => {
+      qc.removeQueries({ queryKey: qk.event(id) });
+      qc.invalidateQueries({ queryKey: qk.events, exact: true });
+    },
   });
 }
 

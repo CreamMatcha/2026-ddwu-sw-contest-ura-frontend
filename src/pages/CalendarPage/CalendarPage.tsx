@@ -1,6 +1,6 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Badge } from '../../components/Badge';
 import { CheckCircle } from '../../components/Check';
 import { Chip } from '../../components/Chip';
@@ -183,16 +183,19 @@ export function CalendarPage() {
                     label={`${a.title} ${a.done ? '미완료로 바꾸기' : '완료로 표시'}`}
                     onToggle={() => toggleAssignment(a)}
                   />
-                  <div className={s.body}>
-                    <div className={[s.title, a.done && s.done].filter(Boolean).join(' ')}>{a.title}</div>
-                    <div className={s.meta}>
-                      <CourseDot color={color} size={8} />
-                      {nameOf(a)} · {a.hasTime ? `${dayjs(a.dueAt).format('HH:mm')} 마감` : TYPE_LABEL[a.type]}
+                  {/* 체크 버튼을 뺀 나머지 영역을 누르면 과제 상세로 */}
+                  <Link to={`/assignments/${a.id}`} className={s.link}>
+                    <div className={s.body}>
+                      <div className={[s.title, a.done && s.done].filter(Boolean).join(' ')}>{a.title}</div>
+                      <div className={s.meta}>
+                        <CourseDot color={color} size={8} />
+                        {nameOf(a)} · {a.hasTime ? `${dayjs(a.dueAt).format('HH:mm')} 마감` : TYPE_LABEL[a.type]}
+                      </div>
                     </div>
-                  </div>
-                  <Badge variant="dday" urgent={d.urgent}>
-                    {d.label}
-                  </Badge>
+                    <Badge variant="dday" urgent={d.urgent}>
+                      {d.label}
+                    </Badge>
+                  </Link>
                 </li>
               );
             })}

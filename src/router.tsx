@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequireAuth } from './layouts/RequireAuth';
 import { TabLayout } from './layouts/TabLayout';
+import { AssignmentDetailPage } from './pages/AssignmentDetailPage/AssignmentDetailPage';
 import { CalendarPage } from './pages/CalendarPage/CalendarPage';
 import { CapturePage } from './pages/CapturePage/CapturePage';
 import { CoursesPage } from './pages/CoursesPage/CoursesPage';
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: '/capture', element: <CapturePage /> },
+      { path: '/assignments/:id', element: <AssignmentDetailPage /> },
       { path: '/courses', element: <CoursesPage /> },
       { path: '/notices/capture', element: <NoticeCapturePage /> },
       { path: '/notices/:id', element: <NoticeDetailPage /> },

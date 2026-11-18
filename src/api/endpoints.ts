@@ -49,6 +49,7 @@ export const timetableApi = {
 export const eventApi = {
   list: (startDate: string, endDate: string) =>
     request<{ items: EventDto[] }>('/event', { query: { startDate, endDate } }),
+  detail: (eventId: number) => request<EventDto>(`/event/${eventId}`),
   create: (body: EventCreateRequest) => request<EventDto>('/event', { method: 'POST', body }),
   setCompleted: (eventId: number, completed: boolean) =>
     request<EventDto>(`/event/${eventId}/completion`, { method: 'PATCH', body: { completed } }),
