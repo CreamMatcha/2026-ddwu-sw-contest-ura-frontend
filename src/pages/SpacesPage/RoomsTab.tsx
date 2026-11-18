@@ -11,6 +11,12 @@ import { todayDayOfWeek, toMinutes } from '../../utils/timetable';
 import s from './RoomsTab.module.css';
 
 const DAY_SHORT = ['월', '화', '수', '목', '금'];
+
+/**
+ * 본교(월곡) 캠퍼스가 아닌 건물. 빈 강의실 결과에서는 뺀다.
+ * 디자인허브는 청담동, 공연예술센터는 동숭동 (강의시간표 PDF 18쪽)
+ */
+const OTHER_CAMPUS_BUILDINGS = new Set(['디자인허브', '공연예술센터', '공연예술센터 신관']);
 const ALL = 'all';
 
 function parseDay(v: string | null): DayOfWeek {
@@ -45,14 +51,15 @@ export function RoomsTab() {
     nextBuildingName: around.next,
   });
   // 서버가 직후·직전 수업 건물을 앞에 두고 정렬해 준다
-  const results: EmptyRoom[] = (rooms.data?.buildings ?? []).flatMap((b) =>
+  const campusBuildings = (rooms.data?.buildings ?? []).filter((b) => !OTHER_CAMPUS_BUILDINGS.has(b.buildingName));
+  const results: EmptyRoom[] = campusBuildings.flatMap((b) =>
     b.classrooms.map((c) => ({
       building: b.buildingName,
       name: c.roomName,
       nextClassAt: c.nextLectureStartTime ?? undefined,
     })),
   );
-  const buildings = (rooms.data?.buildings ?? []).map((b) => b.buildingName);
+  const buildings = campusBuildings.map((b) => b.buildingName);
   const shown = building === ALL ? results : results.filter((r) => r.building === building);
 
   const submit = (e?: FormEvent) => {
