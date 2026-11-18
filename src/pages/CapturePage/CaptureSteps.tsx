@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
 import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { PageHeader } from '../../components/PageHeader';
@@ -21,10 +21,12 @@ interface UploadStepProps {
   subtitle: string;
   backTo: string;
   onPick: (file: File) => void;
+  /** 업로드 영역 위에 넣을 추가 입력 (예: 공지 과목 선택) */
+  children?: ReactNode;
 }
 
 /** 업로드 전 단계 (디자인 없음 — 캡처 결과 화면 스타일을 따름) */
-export function UploadStep({ title, subtitle, backTo, onPick }: UploadStepProps) {
+export function UploadStep({ title, subtitle, backTo, onPick, children }: UploadStepProps) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const albumRef = useRef<HTMLInputElement>(null);
 
@@ -37,12 +39,13 @@ export function UploadStep({ title, subtitle, backTo, onPick }: UploadStepProps)
   return (
     <div className={s.page}>
       <PageHeader variant="back" title={title} subtitle={subtitle} backTo={backTo} />
+      {children}
       <button type="button" className={s.drop} onClick={() => albumRef.current?.click()}>
         <span className={s.dropIcon}>
           <Icon name="camera" size={28} />
         </span>
         <span className={s.dropTitle}>캡처 이미지를 올려 주세요</span>
-        <span className={s.dropSub}>이미지는 분석에만 쓰이고 저장되지 않아요</span>
+        <span className={s.dropSub}>이미지 속 글자를 AI가 읽어 정리해요</span>
       </button>
       <div className={s.actions}>
         <Button icon="camera" fullWidth onClick={() => cameraRef.current?.click()}>

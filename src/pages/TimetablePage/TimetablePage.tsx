@@ -4,11 +4,13 @@ import { Button } from '../../components/Button';
 import { BottomSheet } from '../../components/BottomSheet';
 import { IconButton } from '../../components/IconButton';
 import { PageHeader } from '../../components/PageHeader';
-import { useAppStore } from '../../store/AppStore';
+import { useSchedule } from '../../api/queries';
+import { termLabel } from '../../api/term';
+import { QueryState } from '../../components/QueryState';
 import type { DayOfWeek } from '../../types';
 import { WEEKDAY_NAMES } from '../../utils/date';
 import { freePeriods, GRID_HEIGHT_PX, heightPx, PERIODS, topPx } from '../../utils/timetable';
-import { AddClassSheet } from './AddClassSheet';
+import { LectureSearchSheet } from './LectureSearchSheet';
 import s from './TimetablePage.module.css';
 
 const DAYS: DayOfWeek[] = [0, 1, 2, 3, 4];
@@ -16,9 +18,9 @@ const DAY_SHORT = ['월', '화', '수', '목', '금'];
 
 export function TimetablePage() {
   const navigate = useNavigate();
-  const { classes, courseById } = useAppStore();
+  const { term, courses, classes, courseById, isLoading, error, refetch } = useSchedule();
   const [sel, setSel] = useState<{ day: DayOfWeek; period: number } | null>(null);
-  const [adding, setAdding] = useState<{ day?: DayOfWeek; start?: string; end?: string } | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const selPeriod = sel ? PERIODS.find((p) => p.n === sel.period)! : null;
   const selRange = selPeriod ? `${selPeriod.start}–${selPeriod.end}` : '';
@@ -27,20 +29,24 @@ export function TimetablePage() {
     <div className={sel ? s.withSheet : undefined}>
       <PageHeader
         variant="title"
-        eyebrow="2026년 2학기"
+        eyebrow={termLabel(term)}
         title="내 시간표"
         actions={
           <IconButton
             icon="plus"
-            aria-label="수업 추가"
+            aria-label="과목 추가"
             onClick={() => {
-              // 빈 교시를 골라 둔 상태면 그 시간으로 채워서 연다
-              setAdding({ day: sel?.day, start: selPeriod?.start, end: selPeriod?.end });
+              setAdding(true);
               setSel(null);
             }}
           />
         }
       />
+
+      <QueryState loading={isLoading} error={error} onRetry={refetch} />
+      {!isLoading && !error && classes.length === 0 && (
+        <p className={s.hint}>시간표가 비어 있어요. 오른쪽 위 + 버튼으로 과목을 추가해 보세요</p>
+      )}
 
       <div className={s.wrap}>
         <div className={s.dayHead} aria-hidden>
@@ -127,13 +133,7 @@ export function TimetablePage() {
         </div>
       </BottomSheet>
 
-      <AddClassSheet
-        open={!!adding}
-        onClose={() => setAdding(null)}
-        initialDay={adding?.day}
-        initialStart={adding?.start}
-        initialEnd={adding?.end}
-      />
+      <LectureSearchSheet open={adding} onClose={() => setAdding(false)} usedColors={courses.map((c) => c.color)} />
     </div>
   );
 }

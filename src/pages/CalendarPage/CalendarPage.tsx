@@ -7,19 +7,28 @@ import { Chip } from '../../components/Chip';
 import { CourseDot } from '../../components/CourseDot';
 import { Fab } from '../../components/Fab';
 import { IconButton } from '../../components/IconButton';
+import { errorMessage } from '../../api/client';
+import { useSchedule, useToggleAssignment } from '../../api/queries';
+import { QueryState } from '../../components/QueryState';
+import { useToast } from '../../components/Toast';
 import { useAppStore } from '../../store/AppStore';
+import type { Assignment } from '../../types';
 import { buildMonthGrid } from '../../utils/calendar';
-import { tintOf } from '../../utils/color';
+import { tintOf, UNCATEGORIZED_COLOR } from '../../utils/color';
 import { dday, formatMonthDay, WEEKDAYS } from '../../utils/date';
 import { useNow } from '../../utils/useNow';
 import s from './CalendarPage.module.css';
 
 const DONE_DOT = 'var(--color-border-dashed)';
+const TYPE_LABEL: Record<Assignment['type'], string> = { assignment: '과제', exam: '시험', other: '일정' };
 
 export function CalendarPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { courses, courseById, assignments, hiddenCourseIds, toggleCourseHidden, toggleAssignment } = useAppStore();
+  const toast = useToast();
+  const { hiddenCourseIds, toggleCourseHidden } = useAppStore();
+  const { courses, courseById, assignments, isLoading, error, refetch } = useSchedule();
+  const toggle = useToggleAssignment();
   const today = useNow(60_000).startOf('day');
 
   // 캡처 저장 후 돌아오면 저장한 과제의 날짜를 보여 준다
@@ -31,9 +40,10 @@ export function CalendarPage() {
   const visible = useMemo(
     () =>
       assignments
-        .filter((a) => !hidden.has(a.courseId) && courseById.has(a.courseId))
+        // 미분류 일정(강의와 연결 안 됨)은 항상 보인다
+        .filter((a) => !a.courseId || !hidden.has(a.courseId))
         .sort((a, b) => a.dueAt.localeCompare(b.dueAt)),
-    [assignments, hidden, courseById],
+    [assignments, hidden],
   );
 
   const byDay = useMemo(() => {
@@ -44,6 +54,15 @@ export function CalendarPage() {
     }
     return map;
   }, [visible]);
+
+  const colorOf = (a: Assignment) => (a.courseId && courseById.get(a.courseId)?.color) || UNCATEGORIZED_COLOR;
+  const nameOf = (a: Assignment) => (a.courseId && courseById.get(a.courseId)?.name) || '미분류';
+
+  const toggleAssignment = (a: Assignment) =>
+    toggle.mutate(
+      { id: a.id, done: !a.done },
+      { onError: (err) => toast(errorMessage(err, '완료 상태를 바꾸지 못했어요')) },
+    );
 
   const cells = buildMonthGrid(month);
   const items = byDay.get(selected.format('YYYY-MM-DD')) ?? [];
@@ -129,7 +148,7 @@ export function CalendarPage() {
                 <span className={s.dots}>
                   {inMonth &&
                     list.slice(0, 3).map((a) => (
-                      <CourseDot key={a.id} size={6} color={a.done ? DONE_DOT : courseById.get(a.courseId)!.color} />
+                      <CourseDot key={a.id} size={6} color={a.done ? DONE_DOT : colorOf(a)} />
                     ))}
                 </span>
               </button>
@@ -146,27 +165,29 @@ export function CalendarPage() {
           <span className={s.remain}>이번 달 남은 과제 {remain}개</span>
         </div>
 
-        {items.length === 0 ? (
+        {isLoading || error ? (
+          <QueryState loading={isLoading} error={error} onRetry={refetch} />
+        ) : items.length === 0 ? (
           <p className={s.empty}>이 날 마감인 과제가 없어요</p>
         ) : (
           <ul className={s.list}>
             {items.map((a) => {
-              const c = courseById.get(a.courseId)!;
+              const color = colorOf(a);
               const d = dday(a.dueAt, a.done, today);
               return (
                 <li key={a.id} className={s.item}>
                   <CheckCircle
                     className={s.check}
                     checked={a.done}
-                    color={c.color}
+                    color={color}
                     label={`${a.title} ${a.done ? '미완료로 바꾸기' : '완료로 표시'}`}
-                    onToggle={() => toggleAssignment(a.id)}
+                    onToggle={() => toggleAssignment(a)}
                   />
                   <div className={s.body}>
                     <div className={[s.title, a.done && s.done].filter(Boolean).join(' ')}>{a.title}</div>
                     <div className={s.meta}>
-                      <CourseDot color={c.color} size={8} />
-                      {c.name} · {dayjs(a.dueAt).format('HH:mm')} 마감
+                      <CourseDot color={color} size={8} />
+                      {nameOf(a)} · {a.hasTime ? `${dayjs(a.dueAt).format('HH:mm')} 마감` : TYPE_LABEL[a.type]}
                     </div>
                   </div>
                   <Badge variant="dday" urgent={d.urgent}>

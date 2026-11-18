@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
-import { useMemo, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Chip } from '../../components/Chip';
 import { Icon } from '../../components/Icon';
-import { BUILDINGS, mockRoomSchedules } from '../../mocks';
-import type { DayOfWeek } from '../../types';
-import { findEmptyRooms, formatRegistered, isValidTime } from '../../utils/rooms';
+import { useEmptyRooms, useSchedule } from '../../api/queries';
+import { QueryState } from '../../components/QueryState';
+import type { ClassBlock, DayOfWeek, EmptyRoom } from '../../types';
+import { isValidTime } from '../../utils/rooms';
 import { todayDayOfWeek, toMinutes } from '../../utils/timetable';
 import s from './RoomsTab.module.css';
 
@@ -33,11 +34,25 @@ export function RoomsTab() {
   const [error, setError] = useState<string>();
   const [building, setBuilding] = useState<string>(ALL);
 
-  // TODO(Phase 4): 빈 강의실 조회 API
-  const results = useMemo(
-    () => findEmptyRooms(mockRoomSchedules, query.day, query.from, query.to),
-    [query.day, query.from, query.to],
+  const { term, classes } = useSchedule();
+  const around = nearbyBuildings(classes, query.day, query.from, query.to);
+  const rooms = useEmptyRooms({
+    ...term,
+    timeWeek: query.day + 1,
+    startTime: query.from,
+    endTime: query.to,
+    previousBuildingName: around.previous,
+    nextBuildingName: around.next,
+  });
+  // 서버가 직후·직전 수업 건물을 앞에 두고 정렬해 준다
+  const results: EmptyRoom[] = (rooms.data?.buildings ?? []).flatMap((b) =>
+    b.classrooms.map((c) => ({
+      building: b.buildingName,
+      name: c.roomName,
+      nextClassAt: c.nextLectureStartTime ?? undefined,
+    })),
   );
+  const buildings = (rooms.data?.buildings ?? []).map((b) => b.buildingName);
   const shown = building === ALL ? results : results.filter((r) => r.building === building);
 
   const submit = (e?: FormEvent) => {
@@ -106,7 +121,7 @@ export function RoomsTab() {
         <Chip variant="select" selected={building === ALL} onClick={() => setBuilding(ALL)}>
           전체
         </Chip>
-        {BUILDINGS.map((b) => (
+        {buildings.map((b) => (
           <Chip key={b} variant="select" selected={building === b} onClick={() => setBuilding(b)}>
             {b}
           </Chip>
@@ -120,7 +135,12 @@ export function RoomsTab() {
         <p className={s.condition}>
           {DAY_SHORT[query.day]}요일 {query.from}–{query.to} 기준
         </p>
-        {shown.length === 0 ? (
+        {around.next && (
+          <p className={s.condition}>다음 수업이 있는 {around.next}을(를) 먼저 보여 드려요</p>
+        )}
+        {rooms.isPending || rooms.error ? (
+          <QueryState loading={rooms.isPending} error={rooms.error} onRetry={() => rooms.refetch()} loadingText="빈 강의실을 찾고 있어요" />
+        ) : shown.length === 0 ? (
           <p className={s.empty}>이 시간에 비어 있는 강의실을 찾지 못했어요</p>
         ) : (
           <ul className={s.list}>
@@ -137,7 +157,6 @@ export function RoomsTab() {
                     {r.nextClassAt ? `${query.to} 이후 다음 수업 ${r.nextClassAt}` : '오늘 남은 수업 없음'}
                   </div>
                 </div>
-                <span className={s.updated}>{formatRegistered(r.registeredAt)} 등록</span>
               </li>
             ))}
           </ul>
@@ -145,4 +164,16 @@ export function RoomsTab() {
       </section>
     </>
   );
+}
+
+/** 조회 시간 직전·직후 내 수업의 건물 (가까운 강의실을 먼저 보여 주는 데 씀) */
+function nearbyBuildings(classes: ClassBlock[], day: DayOfWeek, from: string, to: string) {
+  const today = classes.filter((k) => k.dayOfWeek === day && k.building);
+  const previous = today
+    .filter((k) => toMinutes(k.end) <= toMinutes(from))
+    .sort((a, b) => toMinutes(b.end) - toMinutes(a.end))[0]?.building;
+  const next = today
+    .filter((k) => toMinutes(k.start) >= toMinutes(to))
+    .sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0]?.building;
+  return { previous, next };
 }

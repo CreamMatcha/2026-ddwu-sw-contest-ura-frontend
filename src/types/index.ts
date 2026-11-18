@@ -1,77 +1,89 @@
+import type { EventType } from '../api/types';
+
 export type CourseColor = string; // 팔레트 hex
 
+/**
+ * 과목 = 내 시간표에 담은 강의 분반 (같은 과목코드·분반의 요일별 수업 행을 묶은 것)
+ * 백엔드는 요일별 행(timetableId)을 따로 저장하므로 timetableIds를 함께 들고 있는다.
+ */
 export interface Course {
+  /** `${courseCode}-${sectionCode}` */
   id: string;
   name: string;
   color: CourseColor;
   remainingCount: number;
+  timetableIds: number[];
+  /** 대표 수업 행 ID. 일정·공지를 이 과목에 연결할 때 userLectureId로 보낸다 */
+  primaryTimetableId: number;
 }
 
-/** 저장되는 과목 데이터 (remainingCount는 과제 목록에서 계산) */
-export type CourseData = Omit<Course, 'remainingCount'>;
-
+/** 캘린더 일정 (백엔드 event) */
 export interface Assignment {
-  id: string;
-  courseId: string;
+  id: number;
+  /** 없으면 미분류 */
+  courseId?: string;
   title: string;
-  dueAt: string; // ISO (로컬 시각, 예: 2026-11-07T23:59)
+  /** 로컬 시각 YYYY-MM-DDTHH:mm. 시각이 없는 일정은 23:59로 둔다 */
+  dueAt: string;
+  hasTime: boolean;
   done: boolean;
-}
-
-export interface CaptureResult {
-  tempId: string;
-  courseName: string;
-  courseId?: string; // 없으면 "새 과목으로 추가"
-  title: string;
-  dueAt?: string; // 없으면 필수 입력
+  type: EventType;
 }
 
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4; // 월~금
 
 export interface ClassBlock {
-  id: string;
+  id: number;
   courseId: string;
   dayOfWeek: DayOfWeek;
   start: string; // "10:30"
   end: string;
   room: string;
+  /** 건물명 (온라인·미정이면 없음) */
+  building?: string;
 }
 
 export type CongestionLevel = 'RELAXED' | 'NORMAL' | 'CROWDED' | 'UNKNOWN';
 export type VoteLevel = Exclude<CongestionLevel, 'UNKNOWN'>;
 
 export interface Place {
-  id: string;
+  id: number;
   name: string;
+  building: string;
   level: CongestionLevel;
   voteCount: number;
   lastVotedAt?: string;
   myVote?: VoteLevel;
-  canVoteAt?: string; // 10분 제한
+  myVotedAt?: string;
 }
 
 export interface EmptyRoom {
   building: string;
   name: string;
   nextClassAt?: string; // 없으면 "오늘 남은 수업 없음"
-  registeredAt: string;
 }
 
-/** 강의실 시간표 (빈 강의실 계산용 목 데이터) */
-export interface RoomSchedule {
-  building: string;
-  name: string;
-  registeredAt: string;
-  classes: { days: DayOfWeek[]; start: string; end: string }[];
+export interface MentionedDate {
+  at: string;
+  label: string;
+  type: EventType;
+  memo?: string;
 }
 
-export interface Notice {
-  id: string;
-  courseId?: string; // 없으면 미분류
-  isExam: boolean;
+/** 공지 목록 항목 */
+export interface NoticeSummary {
+  id: number;
+  courseId?: string;
+  /** 시간표에서 빠진 강의일 때 보여 줄 이름 */
+  lectureName?: string;
   title: string;
   summary: string;
-  points: string[];
-  mentionedDates: { at: string; label: string }[];
   savedAt: string;
+}
+
+export interface Notice extends NoticeSummary {
+  isExam: boolean;
+  points: string[];
+  mentionedDates: MentionedDate[];
+  imageUrl?: string;
 }
